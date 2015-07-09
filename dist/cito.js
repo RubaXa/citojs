@@ -6,9 +6,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-var cito = window.cito || {};
-(function (cito, window, undefined) {
+(function (window, undefined) {
     'use strict';
+
+	var cito = {};
 
     // TODO implement parse utility which leverages createContextualFragment
 
@@ -1135,6 +1136,10 @@ var cito = window.cito || {};
                     if (events !== oldEvents) {
                         updateEvents(domNode, node, events, oldEvents);
                     }
+
+                    if (events !== void 0 && events.$subtreeModified !== void 0) {
+                    	 triggerLight(events.$subtreeModified, '$subtreeModified', domNode, node);
+                    }
                     break;
             }
         }
@@ -1303,4 +1308,12 @@ var cito = window.cito || {};
     }
     */
 
-})(cito, window);
+	// Export
+	if (typeof define === 'function' && define.amd) {
+		define([], function () {
+			return cito;
+		});
+	} else {
+		window.cito = cito;
+	}
+})(window);
