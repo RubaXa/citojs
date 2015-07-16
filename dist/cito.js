@@ -1042,6 +1042,9 @@
     }
 
     // jshint ignore:start
+    function isDefaultPrevented() {
+        return this.defaultPrevented;
+    }
     function preventDefault() {
         this.defaultPrevented = true;
         this.returnValue = false;
@@ -1059,6 +1062,7 @@
         if (!event) {
             event = window.event;
             if (!event.preventDefault) {
+                event.isDefaultPrevented = isDefaultPrevented;
                 event.preventDefault = preventDefault;
                 event.stopPropagation = stopPropagation;
                 event.defaultPrevented = (event.returnValue === false);
