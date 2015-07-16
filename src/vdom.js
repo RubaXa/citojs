@@ -1061,8 +1061,10 @@
     function getFixedEvent(event, thisArg) {
         if (!event) {
             event = window.event;
+            if (!event.isDefaultPrevented) {
+				event.isDefaultPrevented = isDefaultPrevented;
+			}
             if (!event.preventDefault) {
-                event.isDefaultPrevented = isDefaultPrevented;
                 event.preventDefault = preventDefault;
                 event.stopPropagation = stopPropagation;
                 event.defaultPrevented = (event.returnValue === false);
