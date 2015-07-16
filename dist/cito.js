@@ -1061,9 +1061,6 @@
     function getFixedEvent(event, thisArg) {
         if (!event) {
             event = window.event;
-            if (!event.isDefaultPrevented) {
-				event.isDefaultPrevented = isDefaultPrevented;
-			}
             if (!event.preventDefault) {
                 event.preventDefault = preventDefault;
                 event.stopPropagation = stopPropagation;
@@ -1073,6 +1070,9 @@
             event.currentTarget = thisArg.nodeType ? thisArg : event.target; // jshint ignore:line
             // TODO further event normalization
         }
+		if (!event.isDefaultPrevented) {
+			event.isDefaultPrevented = isDefaultPrevented;
+		}
         event.stopImmediatePropagation = stopImmediatePropagation;
         return event;
     }
