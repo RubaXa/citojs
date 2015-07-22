@@ -6,7 +6,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-(function (window, undefined) {
+(function (factory) {
+	define([], function () {
+		if (typeof window === 'undefined') {
+			return {vdom: {}};
+		} else {
+			return factory(window);
+		}
+	});
+})(function (window, undefined) {
     'use strict';
 
 	var cito = {};
@@ -1315,11 +1323,5 @@
     */
 
 	// Export
-	if (typeof define === 'function' && define.amd) {
-		define([], function () {
-			return cito;
-		});
-	} else {
-		window.cito = cito;
-	}
-})(window);
+	return cito;
+});
