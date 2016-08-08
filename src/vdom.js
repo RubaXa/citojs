@@ -1,3 +1,5 @@
+/* babeljs modules:common */
+
 /*
  * Copyright (c) 2015, Joel Richard
  *
@@ -7,13 +9,21 @@
  */
 
 (function (factory) {
-	define([], function () {
-		if (typeof window === 'undefined') {
-			return {vdom: {}};
-		} else {
-			return factory(window);
-		}
-	});
+	'use strict';
+
+	if (typeof module === 'object' && module.exports) {
+		module.exports = factory(window);
+	} else if (typeof define === 'function' && define.amd) {
+		define([], function () {
+			if (typeof window === 'undefined') {
+				return {vdom: {}};
+			} else {
+				return factory(window);
+			}
+		});
+	} else {
+		window.cito = factory(window);
+	}
 })(function (window, undefined) {
     'use strict';
 
@@ -92,7 +102,7 @@
 
     function normChildren(node, children, oldChildren) {
         if (isFunction(children)) {
-            children = children(oldChildren);
+            children = children(oldChildren, node);
             if (children === undefined) {
                 children = oldChildren;
             }
@@ -121,7 +131,7 @@
             }
         }
     }
-    
+
     // TODO find solution without empty text placeholders
     function emptyTextNode() {
         return document.createTextNode('');
@@ -1115,7 +1125,11 @@
 
     function callEventHandler(eventHandler, currentTarget, event) {
         try {
-            if (eventHandler.call(currentTarget, event) === false) {
+            if (eventHandler.handleEvent) {
+                if (eventHandler.handleEvent(event) === false) {
+                    event.preventDefault();
+                }
+            }  else if (eventHandler.call(currentTarget, event) === false) {
                 event.preventDefault();
             }
         } catch (e) {
@@ -1154,6 +1168,15 @@
                     }
                     break;
                 default:
+                	var changedHandlers;
+                	if (oldNode.key && node.key !== oldNode.key) {
+                		changedHandlers = oldNode.events && oldNode.events.$destroyed;
+
+                		if (changedHandlers) {
+                            triggerLight(changedHandlers, '$destroyed', domNode, node);
+                        }
+                	}
+
                     var attrs = node.attrs, oldAttrs = oldNode.attrs;
                     if ((attrs && attrs.is) !== (oldAttrs && oldAttrs.is)) {
                         createNode(node, domParent, parentNs, oldNode, true);
@@ -1169,7 +1192,7 @@
 
                     var events = node.events, oldEvents = oldNode.events;
                     if (attrs !== oldAttrs) {
-                        var changedHandlers = events && events.$changed;
+                        changedHandlers = events && events.$changed;
                         var changes = updateAttributes(domNode, tag, ns, attrs, oldAttrs, !!changedHandlers);
                         if (changes) {
                             triggerLight(changedHandlers, '$changed', domNode, node, 'changes', changes);
@@ -1309,6 +1332,8 @@
             }
             maintainFocus(activeElement);
         },
+        updateEvents: updateEvents,
+        updateAttributes: updateAttributes,
         remove: function (node) {
             var domParent = node.dom.parentNode;
             removeChild(domParent, node);
