@@ -37,6 +37,8 @@
         supportsRange = 'createRange' in document,
         supportsCssSetProperty = 'setProperty' in helperDiv.style;
 
+    var UNDEF_KEY_PREFIX = '__UNDEF__:';
+
     function isString(value) {
         return typeof value === 'string';
     }
@@ -987,6 +989,8 @@
             }
         }
 
+        var i;
+
         if (oldStartIndex > oldEndIndex) {
             nextChild = (endIndex + 1 < childrenLength) ? normIndex(children, endIndex + 1) : outerNextChild;
             // TODO create single html string in IE for better performance
@@ -996,34 +1000,58 @@
         } else if (startIndex > endIndex) {
             removeChildren(domElement, oldChildren, oldStartIndex, oldEndIndex + 1);
         } else {
-            var i, oldNextChild = oldChildren[oldEndIndex + 1],
-                oldChildrenMap = {};
+            var key, oldNextChild = oldChildren[oldEndIndex + 1],
+                oldChildrenMap = {},
+                maxUndef = 0;
             for (i = oldEndIndex; i >= oldStartIndex; i--) {
                 oldChild = oldChildren[i];
+
+                key = oldChild.key;
                 oldChild.next = oldNextChild;
-                oldChildrenMap[oldChild.key] = oldChild;
+
+                if (key === void 0) {
+                    oldChildrenMap[UNDEF_KEY_PREFIX + maxUndef] = oldChild;
+                    maxUndef++;
+                } else {
+                    oldChildrenMap[oldChild.key] = oldChild;
+                }
+
                 oldNextChild = oldChild;
             }
+
             nextChild = (endIndex + 1 < childrenLength) ? normIndex(children, endIndex + 1) : outerNextChild;
+
             for (i = endIndex; i >= startIndex; i--) {
                 child = children[i];
-                var key = child.key;
+                key = child.key;
+
+                if (key === void 0) {
+                    maxUndef--;
+                    key = UNDEF_KEY_PREFIX + maxUndef;
+                }
+
                 oldChild = oldChildrenMap[key];
+
                 if (oldChild) {
                     oldChildrenMap[key] = null;
-                    oldNextChild = oldChild.next;
                     updateNode(oldChild, child, domElement, ns, null, 0, nextChild);
-                    if ((oldNextChild && oldNextChild.key) !== (nextChild && nextChild.key)) {
+
+                    // TODO find solution without checking the dom
+                    if (domElement.nextSibling != (nextChild && nextChild.dom)) {
                         moveChild(domElement, child, nextChild);
                     }
                 } else {
                     createNode(child, domElement, ns, nextChild);
                 }
+
                 nextChild = child;
             }
+
             for (i = oldStartIndex; i <= oldEndIndex; i++) {
                 oldChild = oldChildren[i];
-                if (oldChildrenMap[oldChild.key] !== null) {
+                key = oldChild.key;
+
+                if ((key === void 0 ? oldChildrenMap[UNDEF_KEY_PREFIX + maxUndef++] : oldChildrenMap[key]) !== null) {
                     removeChild(domElement, oldChild);
                 }
             }
