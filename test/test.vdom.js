@@ -414,6 +414,24 @@ describe('cito.vdom', function () {
                 html: '<ul><li>t0</li><li>t1</li><li>t2</li><li>t3</li><li>t4</li></ul>'
             }
         ],
+        'undefined keyed lists': [
+            {
+                name: 'undefined',
+                node: {
+                    tag: 'ul',
+                    children: [{tag: 'li', children: '1'}, {tag: 'li', children: '2'}]
+                },
+                html: '<ul><li>1</li><li>2</li></ul>'
+            },
+            {
+                name: 'defined',
+                node: {
+                    tag: 'ul',
+                    children: [{tag: 'li', key: 1, children: '1'}, {tag: 'li', children: '3'}, {tag: 'li', key: 2, children: '2'}]
+                },
+                html: '<ul><li>1</li><li>3</li><li>2</li></ul>'
+            }
+        ],
         'keyed lists': [
             {
                 name: '0',
