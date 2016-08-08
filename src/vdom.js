@@ -1012,7 +1012,9 @@
         } else {
             var key, oldNextChild = oldChildren[oldEndIndex + 1],
                 oldChildrenMap = {},
-                maxUndef = 0;
+                maxUndef = 0,
+                undefNum;
+
             for (i = oldEndIndex; i >= oldStartIndex; i--) {
                 oldChild = oldChildren[i];
 
@@ -1030,14 +1032,14 @@
             }
 
             nextChild = (endIndex + 1 < childrenLength) ? normIndex(children, endIndex + 1) : outerNextChild;
+            undefNum = maxUndef;
 
             for (i = endIndex; i >= startIndex; i--) {
                 child = children[i];
                 key = child.key;
 
                 if (key === void 0) {
-                    maxUndef--;
-                    key = UNDEF_KEY_PREFIX + maxUndef;
+                    key = UNDEF_KEY_PREFIX + --undefNum;
                 }
 
                 oldChild = oldChildrenMap[key];
@@ -1057,11 +1059,13 @@
                 nextChild = child;
             }
 
+            undefNum = maxUndef;
+
             for (i = oldStartIndex; i <= oldEndIndex; i++) {
                 oldChild = oldChildren[i];
                 key = oldChild.key;
 
-                if ((key === void 0 ? oldChildrenMap[UNDEF_KEY_PREFIX + maxUndef++] : oldChildrenMap[key]) !== null) {
+                if ((key === void 0 ? oldChildrenMap[UNDEF_KEY_PREFIX + --undefNum] : oldChildrenMap[key]) !== null) {
                     removeChild(domElement, oldChild);
                 }
             }
@@ -1168,14 +1172,14 @@
                     }
                     break;
                 default:
-                	var changedHandlers;
-                	if (oldNode.key && node.key !== oldNode.key) {
-                		changedHandlers = oldNode.events && oldNode.events.$destroyed;
+                    var changedHandlers;
+                    if (oldNode.key && node.key !== oldNode.key) {
+                        changedHandlers = oldNode.events && oldNode.events.$destroyed;
 
-                		if (changedHandlers) {
-                            triggerLight(changedHandlers, '$destroyed', domNode, node);
+                        if (changedHandlers) {
+                        triggerLight(changedHandlers, '$destroyed', domNode, node);
                         }
-                	}
+                    }
 
                     var attrs = node.attrs, oldAttrs = oldNode.attrs;
                     if ((attrs && attrs.is) !== (oldAttrs && oldAttrs.is)) {
