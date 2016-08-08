@@ -1206,7 +1206,7 @@
                         updateEvents(domNode, node, events, oldEvents);
                     }
 
-                    if (events !== void 0 && events.$subtreeModified !== void 0) {
+                    if (events != null && events.$subtreeModified !== void 0) {
                     	 triggerLight(events.$subtreeModified, '$subtreeModified', domNode, node);
                     }
                     break;
