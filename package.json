@@ -30,5 +30,8 @@
   },
   "jam": {
     "main": "dist/cito.js"
+  },
+  "scripts": {
+    "test": "./node_modules/karma/bin/karma start"
   }
 }
